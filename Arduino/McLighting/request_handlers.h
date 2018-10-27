@@ -1205,15 +1205,19 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 //pir signal karo
 #ifdef PIRSIGNAL
 void pirSignal() {
+  pirStateChanged = 1;
+  DBG_OUTPUT_PORT.println("PIR: interrupt is called ");  
+}
+void handlePirChange() {
       //Pir has integrated timer so I don't care about time control, 
       //will see if it is goud enough with the integrate one, yes it seems so
-      static byte previousState = LOW;      
-      byte currState = digitalRead(PIRSIGNAL);
+      //static byte previousState = LOW;      
+      //byte currState = !pirState; //digitalRead(PIRSIGNAL);
       //int m = (int) strip.getMode();//mode number is not enough to detect off
       //---so get information like in listStatusJSON
       static bool needLight = false;
       //-------------------------------------------------
-      if ( previousState == LOW && currState == HIGH) {
+      if ( pirState == LOW) {
         DBG_OUTPUT_PORT.println("PIR: Detect change from LOW to HIGH ");
         DBG_OUTPUT_PORT.printf("main_color %i %i %i brightness %i  \n",main_color.red,main_color.green,main_color.blue,brightness);
         if ((uint8_t) mode == 2  //off
@@ -1222,17 +1226,19 @@ void pirSignal() {
              needLight = true;
          //set leds to white if LED is actually off
          if (needLight) {
-          DBG_OUTPUT_PORT.println("ok, needlight is true, switch on");
+          DBG_OUTPUT_PORT.println("ok, needlight is true, switch on");  
           setModeByStateString(PIR_MODE);
          }
       }
-      else if (previousState == HIGH && currState == LOW && needLight) {
+      //else if (previousState == HIGH && currState == LOW && needLight) {
+      else if (pirState == HIGH && needLight) { //needLight: the PIR has switched on the LED 
         DBG_OUTPUT_PORT.println("PIR: Detect change from HIGH to LOW ");
         //switch led  to off 
         needLight = false;
         handleStripeOff();
       }
-      previousState = currState;    
+      pirState = !pirState;
+      pirStateChanged = 0; //we have handled this part
   }
 #endif
 #ifdef ENABLE_STATE_SAVE_SPIFFS

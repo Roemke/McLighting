@@ -241,6 +241,15 @@ void setup() {
 #ifdef ENABLE_BUTTON
   pinMode(BUTTON,INPUT_PULLUP);
 #endif
+
+  // setup interrupt for PIR if defined
+#ifdef PIRSIGNAL
+  pirState = digitalRead(PIRSIGNAL);
+  pirStateChanged = 0;
+  DBG_OUTPUT_PORT.printf("pirState is %i\n",pirState);
+  attachInterrupt(digitalPinToInterrupt(PIRSIGNAL), pirSignal, CHANGE);
+  //call pirSignal if we have a change on GPIO of  PIRSIGNAL
+#endif  
   // start ticker with 0.5 because we start in AP mode and try to connect
   ticker.attach(0.5, tick);
 
@@ -881,6 +890,7 @@ void setup() {
     }
     sprintf(last_state, "STA|%2d|%3d|%3d|%3d|%3d|%3d|%3d", mode, ws2812fx_mode, ws2812fx_speed, brightness, main_color.red, main_color.green, main_color.blue);
   #endif
+  
 }
 
 
@@ -889,7 +899,8 @@ void loop() {
     button();
   #endif
   #ifdef PIRSIGNAL
-    pirSignal();
+   if (pirStateChanged) //is set by interrupt
+      handlePirChange(); 
   #endif 
   server.handleClient();
   webSocket.loop();

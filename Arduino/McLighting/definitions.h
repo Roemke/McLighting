@@ -3,7 +3,7 @@
 
 // Neopixel
 #define PIN D1           // PIN (14 / D5) where neopixel / WS2811 strip is attached
-#define NUMLEDS 180       // Number of leds in the strip
+#define NUMLEDS 144       // Number of leds in the strip
 #define BUILTIN_LED 2    // ESP-12F has the built in LED on GPIO2, see https://github.com/esp8266/Arduino/issues/2192
 #define BUTTON 4         // Input pin (4 / D2) for switching the LED strip on / off, connect this PIN to ground to trigger button.
 //#define PIRSIGNAL D8 // is pulldown on d1 mini, so just put to 3.3V or connect pir to get signal
@@ -17,6 +17,8 @@
 #ifdef PIRSIGNAL
   #define PIR_MODE "STA| 1|  0|245|80|255|255|255"   // Static white
    //           notused  mode wsmode speed  bright r   g   b
+  byte pirState;
+  volatile byte pirStateChanged;
 #endif
 const char HOSTNAME[] = "McLightGarden";   // Friedly hostname
 
