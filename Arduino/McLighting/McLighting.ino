@@ -901,6 +901,7 @@ void loop() {
   #ifdef PIRSIGNAL
    if (pirStateChanged) //is set by interrupt
       handlePirChange(); 
+    //DBG_OUTPUT_PORT.printf("%i PIR state %i \n",millis(),pirState);   
   #endif 
   server.handleClient();
   webSocket.loop();

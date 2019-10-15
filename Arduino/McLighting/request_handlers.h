@@ -1205,40 +1205,53 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 //pir signal karo
 #ifdef PIRSIGNAL
 void pirSignal() {
-  pirStateChanged = 1;
   DBG_OUTPUT_PORT.println("PIR: interrupt is called ");  
+  pirStateChanged = 1;
 }
 void handlePirChange() {
       //Pir has integrated timer so I don't care about time control, 
       //will see if it is goud enough with the integrate one, yes it seems so
-      //static byte previousState = LOW;      
+      //static byte previousState = LOW;   
+      //no new pir sensor sr505 has no timer, fixed timer it stays for 8 seconds high
+      //any motion extends this time   
       //byte currState = !pirState; //digitalRead(PIRSIGNAL);
       //int m = (int) strip.getMode();//mode number is not enough to detect off
       //---so get information like in listStatusJSON
       static bool needLight = false;
-      //-------------------------------------------------
-      if ( pirState == LOW) {
-        DBG_OUTPUT_PORT.println("PIR: Detect change from LOW to HIGH ");
-        DBG_OUTPUT_PORT.printf("main_color %i %i %i brightness %i  \n",main_color.red,main_color.green,main_color.blue,brightness);
-        if ((uint8_t) mode == 2  //off
-             || (main_color.red == 0 && main_color.green == 0 && main_color.blue == 0 ) //all off
-             || brightness < 5 )
-             needLight = true;
-         //set leds to white if LED is actually off
-         if (needLight) {
-          DBG_OUTPUT_PORT.println("ok, needlight is true, switch on");  
-          setModeByStateString(PIR_MODE);
-         }
-      }
-      //else if (previousState == HIGH && currState == LOW && needLight) {
-      else if (pirState == HIGH && needLight) { //needLight: the PIR has switched on the LED 
-        DBG_OUTPUT_PORT.println("PIR: Detect change from HIGH to LOW ");
-        //switch led  to off 
-        needLight = false;
-        handleStripeOff();
-      }
-      pirState = !pirState;
       pirStateChanged = 0; //we have handled this part
+      
+      //-------------------------------------------------
+      if (millis() > 20000)
+      {
+        pirState = digitalRead(PIRSIGNAL);
+        if ( pirState == HIGH) {
+          DBG_OUTPUT_PORT.printf("%i PIR: Detect change from LOW to HIGH \n",millis());
+          DBG_OUTPUT_PORT.printf("main_color %i %i %i brightness %i  \n",main_color.red,main_color.green,main_color.blue,brightness);
+          if ((uint8_t) mode == 2  //off
+               || (main_color.red == 0 && main_color.green == 0 && main_color.blue == 0 ) //all off
+               || brightness < 5 )
+               needLight = true;
+           //set leds to white if LED is actually off
+           if (needLight) {
+            DBG_OUTPUT_PORT.println("ok, needlight is true, switch on");  
+            setModeByStateString(PIR_MODE);
+           }
+        }
+        //else if (previousState == HIGH && currState == LOW && needLight) {
+        else if (pirState == LOW && needLight) { //needLight: the PIR has switched on the LED 
+          DBG_OUTPUT_PORT.printf("%i PIR: Detect change from HIGH to LOW, switch off\n ",millis());
+          //switch led  to off 
+          needLight = false;
+          handleStripeOff();
+        }
+        else if (pirState == LOW) {
+          DBG_OUTPUT_PORT.printf("%i PIR: Detect change from HIGH to LOW, but don't switch \n",millis());         
+        }
+      }
+      else {
+        DBG_OUTPUT_PORT.printf("%i It is to close to start to switch\n",millis());         
+      }
+      //pirState = !pirState;
   }
 #endif
 #ifdef ENABLE_STATE_SAVE_SPIFFS

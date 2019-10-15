@@ -1,17 +1,20 @@
 //#define USE_NEOANIMATIONFX  // Uses NeoAnimationFX, PIN is ignored & set to RX/GPIO3 or UART method: D4/GPIO2, see: https://github.com/debsahu/NeoAnimationFX
 #define USE_WS2812FX          // Uses WS2812FX, see: https://github.com/kitesurfer1404/WS2812FX
 
+//zum programmieren: D3 / 0 auf Low 
+
 // Neopixel
-#define PIN D1           // PIN (14 / D5) where neopixel / WS2811 strip is attached
-#define NUMLEDS 144       // Number of leds in the strip
+#define PIN 5           // PIN 5=D1  where neopixel / WS2811 strip is attached
+#define NUMLEDS 180 // 8//144       // Number of leds in the strip, 8 zum test, 180 im Garten
 #define BUILTIN_LED 2    // ESP-12F has the built in LED on GPIO2, see https://github.com/esp8266/Arduino/issues/2192
-#define BUTTON 4         // Input pin (4 / D2) for switching the LED strip on / off, connect this PIN to ground to trigger button.
+#define BUTTON  7        // Input pin (4 / D2) for switching the LED strip on / off, connect this PIN to ground to trigger button.
+                         //button nicht umgesetzt
 //#define PIRSIGNAL D8 // is pulldown on d1 mini, so just put to 3.3V or connect pir to get signal
                      // hmm, but I need to have low on PIN 8 if I want to flash esp again, so disconnect PIR if you want to do this 
                      // and - better read before, if you start ESP and have D8 high (GPIO 15), the esp tries to start from 
                      // sdcard (what ever this means), so D8 is not usable as simple as I thought :-(  pir sends to fast a motion
                      // detection if there is something
-#define PIRSIGNAL D2 //is no pull down, so I hope the pir sensor will do the pull down when switching from signal detected to off
+#define PIRSIGNAL 4 // D2 normal is no pull down, so I hope the pir sensor will do the pull down when switching from signal detected to off
                      //yes it works as expected, pir has output of low and high
 
 #ifdef PIRSIGNAL
